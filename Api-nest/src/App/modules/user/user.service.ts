@@ -4,6 +4,7 @@ import { Auth0Service } from 'src/App/shared/auth0.service';
 import { User, UserDocument } from './user.schema';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
+import { userDTO } from './user.dto';
 
 @Injectable()
 export class UserService {
@@ -17,6 +18,7 @@ export class UserService {
   **/
   async registerUser(req: Request) {
     const userInfo = await this.auth0Service.getUserInfo(req);
+    console.log(userInfo);
 
     //check if exists:
     const checkUser = await this.findUserByMail(userInfo.data.email);
@@ -31,6 +33,9 @@ export class UserService {
     });
   }
 
+  /** REGISTER USER BY EMAIL **/
+  async registerUserByEmail(email: string, password: string) {}
+
   async loginUser(req: Request) {
     const auth0Id = this.auth0Service.getAuth0Id(req);
     const user = await this.userModel.findOne({ auth0Id }).lean().exec();
@@ -44,5 +49,22 @@ export class UserService {
   **/
   async findUserByMail(email: string) {
     return await this.userModel.findOne({ email });
+  }
+
+  async registerAuth0User(data: userDTO) {
+    await this.auth0Service.createAuth0User(data.email, data.password);
+  }
+
+  /**  GET USER FROM AUTH0 USING EMAIL  **/
+  async getUserByEmailAuth0(email: string) {
+    return await this.auth0Service.getUserByEmailFromAuth0(email);
+  }
+
+  /** DELETE USER IN AUTH0 **/
+  async deleteAuth0() {
+    const res = await this.auth0Service.deleteAuth0Token(
+      'auth0|65a3cf838d9d565392c3f9d4',
+    );
+    console.log(res);
   }
 }

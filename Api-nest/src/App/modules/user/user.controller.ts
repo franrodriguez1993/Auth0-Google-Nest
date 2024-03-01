@@ -1,10 +1,20 @@
-import { Controller, Post, Req, UseGuards } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  Param,
+  Post,
+  Req,
+  UseGuards,
+} from '@nestjs/common';
 import { UserService } from './user.service';
 import { Request } from 'express';
 import { AuthorizationGuard } from 'src/App/shared/guards/authorization.guard';
+import { userDTO } from './user.dto';
 
 @Controller('user')
-@UseGuards(AuthorizationGuard)
+// @UseGuards(AuthorizationGuard)
 export class UserController {
   constructor(private readonly userService: UserService) {}
 
@@ -17,23 +27,20 @@ export class UserController {
   login(@Req() req: Request) {
     return this.userService.loginUser(req);
   }
-  // @Get()
-  // findAll() {
-  //   return this.userService.findAll();
-  // }
 
-  // @Get(':id')
-  // findOne(@Param('id') id: string) {
-  //   return this.userService.findOne(+id);
-  // }
+  @Post('/registerauth0')
+  registerAuth0(@Body() data: userDTO) {
+    this.userService.registerAuth0User(data);
+    return 'ok';
+  }
 
-  // @Patch(':id')
-  // update(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto) {
-  //   return this.userService.update(+id, updateUserDto);
-  // }
-
-  // @Delete(':id')
-  // remove(@Param('id') id: string) {
-  //   return this.userService.remove(+id);
-  // }
+  @Get('/auth0/email/:email')
+  getByEmail(@Param('email') email: string) {
+    return this.userService.getUserByEmailAuth0(email);
+  }
+  @Delete('/userauth')
+  accessToken() {
+    this.userService.deleteAuth0();
+    return 'ok';
+  }
 }
